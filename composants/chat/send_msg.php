@@ -1,9 +1,6 @@
 <?php
 require_once '../../db.php';
 session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 header('Content-Type: application/json');
 try {
     if (!isset($_SESSION['client'])) {
@@ -18,7 +15,7 @@ try {
         exit;
     }
     $texte = htmlspecialchars($input['texte']);
-    $nom = htmlspecialchars($_SESSION['client']['prenom'] . ' ' . $_SESSION['client']['nom']);
+    $nom = htmlspecialchars($_SESSION['client']['prenom']);
     $query = "INSERT INTO Messages (nom, texte, date_envoi) VALUES (?, ?, NOW())";
     $stmt = getBD()->prepare($query);
     $stmt->bind_param("ss", $nom, $texte);

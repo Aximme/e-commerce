@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 chatMessages.innerHTML = "";
                 data.forEach(message => {
                     const msgElement = document.createElement("div");
-                    msgElement.textContent = `${message.nom} dit '${message.texte}'`;
+                    msgElement.textContent = `${message.nom} dit : ${message.texte}`;
                     chatMessages.appendChild(msgElement);
                 });
                 chatMessages.scrollTop = chatMessages.scrollHeight;
