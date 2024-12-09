@@ -48,6 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (response.status === 401) {
                         showTemporaryMessage('🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.');
                         throw new Error('Unauthorized');
+                    } else if (response.status === 403) {
+                        showTemporaryMessage('🚫 Message offensant. Veuillez modifier votre message.');
+                        throw new Error('Offensive message');
                     }
                     return response.json();
                 })
