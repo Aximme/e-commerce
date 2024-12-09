@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (tempMessage.parentNode === chatMessages) {
                 chatMessages.removeChild(tempMessage);
             }
-        }, 5000); // Set the timeout duration to 5 seconds
+        }, 5000);
     }
 
     chatForm.addEventListener("submit", function (e) {
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(response => {
                     if (response.status === 401) {
                         showTemporaryMessage('🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.');
-                        throw new Error('Unauthorized'); // Ceci va arrêter l'exécution du .then() suivant
+                        throw new Error('Unauthorized');
                     }
                     return response.json();
                 })
@@ -57,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    // Optionnel : gestion d'autres types d'erreurs
                 });
         }
     });
