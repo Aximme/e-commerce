@@ -4,8 +4,8 @@ session_start();
 header('Content-Type: application/json');
 try {
     if (!isset($_SESSION['client'])) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Non autorisé']);
+        http_response_code(401);
+        echo json_encode(['message' => '🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.']);
         exit;
     }
     $input = json_decode(file_get_contents('php://input'), true);

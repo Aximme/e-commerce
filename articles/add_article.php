@@ -11,6 +11,11 @@ if (isset($_POST['id_art']) && isset($_POST['quantite'])) {
     $id_art = $_POST['id_art'];
     $quantite = $_POST['quantite'];
 
+    if (!is_numeric($quantite)) {
+        echo "La quantité doit être un nombre.";
+        exit();
+    }
+
     if (!isset($_SESSION['panier'])) {
         $_SESSION['panier'] = array();
     }

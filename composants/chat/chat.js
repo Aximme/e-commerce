@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch('/Miroff_Airplanes/composants/chat/load_msg.php')
             .then(response => response.json())
             .then(data => {
-                const chatMessages = document.getElementById("chat-messages");
                 chatMessages.innerHTML = "";
                 data.forEach(message => {
                     const msgElement = document.createElement("div");
@@ -18,9 +17,26 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    document.getElementById("chat-form").addEventListener("submit", function (e) {
+    function showTemporaryMessage(message) {
+        const tempMessage = document.createElement("div");
+        tempMessage.innerHTML = message;
+        tempMessage.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        tempMessage.style.color = "#fff";
+        tempMessage.style.padding = "10px";
+        tempMessage.style.margin = "10px 0";
+        tempMessage.style.borderRadius = "5px";
+        chatMessages.appendChild(tempMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        setTimeout(() => {
+            if (tempMessage.parentNode === chatMessages) {
+                chatMessages.removeChild(tempMessage);
+            }
+        }, 5000); // Set the timeout duration to 5 seconds
+    }
+
+    chatForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        const chatInput = document.getElementById("chat-input");
         const message = chatInput.value.trim();
         if (message.length > 0) {
             fetch('/Miroff_Airplanes/composants/chat/send_msg.php', {
@@ -28,10 +44,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ texte: message })
             })
-                .then(response => response.json())
-                .then(() => {
+                .then(response => {
+                    if (response.status === 401) {
+                        showTemporaryMessage('🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.');
+                        throw new Error('Unauthorized'); // Ceci va arrêter l'exécution du .then() suivant
+                    }
+                    return response.json();
+                })
+                .then((data) => {
                     chatInput.value = "";
                     loadMessages();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Optionnel : gestion d'autres types d'erreurs
                 });
         }
     });
@@ -39,27 +65,3 @@ document.addEventListener("DOMContentLoaded", function () {
     setInterval(loadMessages, 5000);
     loadMessages();
 });
-
-
-
-function addMessageToChat(name, text) {
-    const chatMessages = document.getElementById('chat-messages');
-
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-
-    const nameElement = document.createElement('span');
-    nameElement.classList.add('name');
-    nameElement.textContent = name;
-
-    const textElement = document.createElement('span');
-    textElement.classList.add('text');
-    textElement.textContent = text;
-
-    messageElement.appendChild(nameElement);
-    messageElement.appendChild(textElement);
-
-    chatMessages.appendChild(messageElement);
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
