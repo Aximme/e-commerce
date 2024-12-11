@@ -1,6 +1,3 @@
-<?php
-include '../composants/chat/chat_component.php';
-?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>

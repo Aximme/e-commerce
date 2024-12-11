@@ -16,7 +16,6 @@ $panier = $_SESSION['panier'];
 $total_commande = 0;
 
 
-include '../composants/chat/chat_component.php';
 
 ?>
 

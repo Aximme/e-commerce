@@ -10,7 +10,6 @@ $resultat = getBD($sql);
 if ($resultat->num_rows > 0) {
     $ligne = $resultat->fetch_assoc();
 
-    include '../composants/chat/chat_component.php';
 
     ?>
     <html lang="fr">
