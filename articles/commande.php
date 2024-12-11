@@ -4,6 +4,12 @@ require_once '../db.php';
 require_once '../vendor/autoload.php';
 require_once '../stripe.php';
 
+if (empty($_SESSION['auth_token']) || $_SESSION['auth_token'] !== $_POST['auth_token']) {
+    $_SESSION['auth_token'] = bin2hex(random_bytes(128));
+    echo "<meta http-equiv='refresh' content='0;url=../connexion.php?error=token'>";
+    exit();
+}
+
 if (!isset($_SESSION['client'])) {
     echo "<div class='commande-error'>Erreur : Connectez-vous pour passer une commande.</div>";
     exit();

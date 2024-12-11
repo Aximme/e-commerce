@@ -88,10 +88,10 @@ include '../composants/chat/chat_component.php';
 </section>
 
 <?php if ($total_commande > 0) : ?>
-    <div class="panier-commande">
-        <a href="commande.php" class="btn-commande">Passer la commande</a>
+    <form action="commande.php" method="post" class="panier-commande">
         <input type="hidden" name="auth_token" value="<?php echo $_SESSION['auth_token']; ?>">
-    </div>
+        <button type="submit" class="btn-commande">Passer la commande</button>
+    </form>
 <?php endif; ?>
 
 
