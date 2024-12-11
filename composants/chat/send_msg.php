@@ -11,6 +11,12 @@ try {
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
+    if (!isset($input['csrf_token']) || $input['csrf_token'] !== $_SESSION['auth_token']) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Token CSRF invalide']);
+        exit;
+    }
+
     if (!isset($input['texte']) || strlen($input['texte']) > 256) {
         http_response_code(400);
         echo json_encode(['error' => 'Message invalide ou trop long']);
@@ -19,9 +25,9 @@ try {
 
     $texte = $input['texte'];
 
+    // verif msg offensant
     $score_map_path = '/Applications/MAMP/htdocs/Miroff_Airplanes/tf-idf_automod/score_map.json';
-    if (!file_exists($score_map_path)) {
-    } else {
+    if (file_exists($score_map_path)) {
         $score_map_json = file_get_contents($score_map_path);
         $score_map = json_decode($score_map_json, true);
 

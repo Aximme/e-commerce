@@ -1,9 +1,10 @@
 <div id="chat-container">
     <div id="chat-header">Discussion Inter-Membres 🚀
-    <button id="close-chat" style="background: none; border: none; color: #fff; float: right; font-size: 16px; cursor: pointer;">✖</button>
+    <button id="close-chat" style="background: none; border: none; color: #fff; float: right; font-size: 16px; cursor: pointer;">x</button>
     </div>
     <div id="chat-messages"></div>
     <form id="chat-form">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['auth_token']); ?>">
         <input type="text" id="chat-input" maxlength="256" placeholder="Entrez votre msg" />
         <button type="submit">Envoyer</button>
     </form>

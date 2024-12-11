@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const chatForm = document.getElementById("chat-form");
     const chatInput = document.getElementById("chat-input");
     const chatMessages = document.getElementById("chat-messages");
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
     function loadMessages() {
         fetch('/Miroff_Airplanes/composants/chat/load_msg.php')
@@ -42,15 +43,15 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch('/Miroff_Airplanes/composants/chat/send_msg.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ texte: message })
+                body: JSON.stringify({ texte: message, csrf_token: csrfToken })
             })
                 .then(response => {
                     if (response.status === 401) {
                         showTemporaryMessage('🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.');
                         throw new Error('Unauthorized');
                     } else if (response.status === 403) {
-                        showTemporaryMessage('🚫 Message offensant. Veuillez modifier votre message.');
-                        throw new Error('Offensive message');
+                        showTemporaryMessage('🚫 Message offensant ou token CSRF invalide. Veuillez modifier votre message.');
+                        throw new Error('Offensive message or invalid CSRF token');
                     }
                     return response.json();
                 })
