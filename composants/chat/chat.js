@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         showTemporaryMessage('🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.');
                         throw new Error('Unauthorized');
                     } else if (response.status === 403) {
-                        showTemporaryMessage('🚫 Message offensant ou token CSRF invalide. Veuillez modifier votre message.');
+                        showTemporaryMessage('🚫 Message offensant detecté :( Veuillez modifier votre message.');
                         throw new Error('Offensive message or invalid CSRF token');
                     }
                     return response.json();

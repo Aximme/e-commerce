@@ -30,7 +30,7 @@ foreach ($panier as $article) {
     $id_art = $article['id_art'];
     $quantite = $article['quantite'];
 
-    $sql = "SELECT nom, prix, ID_STRIPE, quantite FROM Articles WHERE id_art = ?";
+    $sql = "SELECT nom, prix, ID_STRIPE FROM Articles WHERE id_art = ?";
     $stmt = $connexion->prepare($sql);
     if (!$stmt) {
         exit("Erreur SQL : " . $connexion->error);
@@ -43,10 +43,6 @@ foreach ($panier as $article) {
 
     if (!$article_data || empty($article_data['ID_STRIPE'])) {
         exit("Erreur : Article introuvable ou non valide.");
-    }
-
-    if (intval($article_data['quantite']) < intval($quantite)) {
-        exit("Erreur : Quantité insuffisante pour l'article {$article_data['nom']}.");
     }
 
     $toto[] = [
@@ -71,29 +67,10 @@ try {
         $id_art = intval($article['id_art']);
         $quantite = intval($article['quantite']);
 
-        $sql_stock = "SELECT quantite FROM Articles WHERE id_art = ?";
-        $stmt_stock = $connexion->prepare($sql_stock);
-        $stmt_stock->bind_param("i", $id_art);
-        $stmt_stock->execute();
-        $result_stock = $stmt_stock->get_result();
-
-        if ($result_stock->num_rows > 0) {
-            $ligne_stock = $result_stock->fetch_assoc();
-            $quantite_stock = intval($ligne_stock['quantite']);
-
-            if ($quantite_stock >= $quantite) {
-                $nouvelle_quantite = $quantite_stock - $quantite;
-                $sql_update_stock = "UPDATE Articles SET quantite = ? WHERE id_art = ?";
-                $stmt_update_stock = $connexion->prepare($sql_update_stock);
-                $stmt_update_stock->bind_param("ii", $nouvelle_quantite, $id_art);
-                $stmt_update_stock->execute();
-
-                $sql_insert_commande = "INSERT INTO Commandes (id_art, id_client, quantite) VALUES (?, ?, ?)";
-                $stmt_insert_commande = $connexion->prepare($sql_insert_commande);
-                $stmt_insert_commande->bind_param("iii", $id_art, $_SESSION['client']['id_client'], $quantite);
-                $stmt_insert_commande->execute();
-            }
-        }
+        $sql_insert_commande = "INSERT INTO Commandes (id_art, id_client, quantite) VALUES (?, ?, ?)";
+        $stmt_insert_commande = $connexion->prepare($sql_insert_commande);
+        $stmt_insert_commande->bind_param("iii", $id_art, $_SESSION['client']['id_client'], $quantite);
+        $stmt_insert_commande->execute();
     }
 
     unset($_SESSION['panier']);
