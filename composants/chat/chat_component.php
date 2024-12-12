@@ -4,7 +4,7 @@
     </div>
     <div id="chat-messages"></div>
     <form id="chat-form">
-        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['auth_token']); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['auth_token']; ?>">
         <input type="text" id="chat-input" maxlength="256" placeholder="Entrez votre msg" />
         <button type="submit">Envoyer</button>
     </form>
