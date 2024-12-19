@@ -1,3 +1,6 @@
+let isShowingError = false;
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const chatForm = document.getElementById("chat-form");
     const chatInput = document.getElementById("chat-input");
@@ -5,9 +8,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
     function loadMessages() {
+        if (isShowingError) return;
         fetch('/Miroff_Airplanes/composants/chat/load_msg.php')
             .then(response => response.json())
             .then(data => {
+                if (isShowingError) return; // Vérifier à nouveau après la réponse
                 chatMessages.innerHTML = "";
                 data.forEach(message => {
                     const msgElement = document.createElement("div");
@@ -17,21 +22,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     }
+    
     function showTemporaryMessage(message) {
+        // Empêcher le rafraîchissement automatique pendant l'affichage du message
+        isShowingError = true;
+        
         const tempMessage = document.createElement("div");
         tempMessage.innerHTML = message;
         tempMessage.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-        tempMessage.style.color = "#fff";
+        tempMessage.style.color = "#fff"; 
         tempMessage.style.padding = "10px";
         tempMessage.style.margin = "10px 0";
         tempMessage.style.borderRadius = "5px";
+        
+        // Nettoyer le conteneur de messages
+        chatMessages.innerHTML = '';
         chatMessages.appendChild(tempMessage);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-            setTimeout(() => {
-            if (tempMessage.parentNode === chatMessages) {
-                chatMessages.removeChild(tempMessage);
-            }
-        }, 10000);
+        
+        // Attendre 5 secondes avant de restaurer
+        setTimeout(() => {
+            isShowingError = false; // Réactiver le rafraîchissement automatique
+            loadMessages(); // Recharger les messages
+        }, 5000);
     }
 
     chatForm.addEventListener("submit", function (e) {

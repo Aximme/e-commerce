@@ -2,12 +2,10 @@
 session_start();
 require_once '../../db.php';
 
-// Activer l'affichage des erreurs pour déboguer
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['client'])) {
     error_log("Utilisateur non connecté.");
     http_response_code(401);
@@ -15,7 +13,6 @@ if (!isset($_SESSION['client'])) {
     exit;
 }
 
-// Fonction pour vérifier si un message contient une insulte
 function verifier_insulte($message) {
     error_log("Appel à vérifier_insulte avec message : $message");
     $escaped_message = escapeshellarg($message);
