@@ -1,72 +1,71 @@
 <?php
-require_once '../../db.php';
 session_start();
-header('Content-Type: application/json');
+require_once '../../db.php';
+
+// Activer l'affichage des erreurs pour déboguer
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Vérifie si l'utilisateur est connecté
+if (!isset($_SESSION['client'])) {
+    error_log("Utilisateur non connecté.");
+    http_response_code(401);
+    echo json_encode(['error' => 'Vous devez être connecté pour envoyer un message.']);
+    exit;
+}
+
+// Fonction pour vérifier si un message contient une insulte
+function verifier_insulte($message) {
+    error_log("Appel à vérifier_insulte avec message : $message");
+    $escaped_message = escapeshellarg($message);
+    $output = shell_exec("/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 /Applications/MAMP/htdocs/Miroff_Airplanes/ai-automod/check_insult.py $escaped_message");
+
+    if ($output === null) {
+        error_log("Erreur : script Python n'a pas pu être exécuté.");
+        return ['error' => 'Erreur interne lors de la vérification des insultes.'];
+    }
+
+    error_log("Réponse du script Python : $output");
+
+    $result = json_decode($output, true);
+    if ($result === null) {
+        error_log("Erreur : JSON retourné par le script Python invalide.");
+        return ['error' => 'Erreur lors de l’analyse du message.'];
+    }
+
+    return $result;
+}
+
+$data = json_decode(file_get_contents('php://input'), true);
+$message = trim($data['texte'] ?? '');
+
+$insulte_check = verifier_insulte($message);
+if (isset($insulte_check['error'])) {
+    http_response_code(500);
+    echo json_encode(['error' => $insulte_check['error']]);
+    exit;
+}
+
+if ($insulte_check['insulte']) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Message offensant détecté.']);
+    exit;
+}
 
 try {
-    if (!isset($_SESSION['client'])) {
-        http_response_code(401);
-        echo json_encode(['message' => '🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.']);
-        exit;
-    }
+    error_log("Insertion du message : " . $message);
+    getBD(
+        "INSERT INTO messages (nom, texte, date_envoi) VALUES (?, ?, NOW())",
+        [$_SESSION['client']['prenom'], $message]
 
-    $input = json_decode(file_get_contents('php://input'), true);
-    if (!isset($input['csrf_token']) || $input['csrf_token'] !== $_SESSION['auth_token']) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Token CSRF invalide']);
-        exit;
-    }
-
-    if (!isset($input['texte']) || strlen($input['texte']) > 256) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Message invalide ou trop long']);
-        exit;
-    }
-
-    $texte = $input['texte'];
-
-    // verif msg offensant
-    $score_map_path = '/Applications/MAMP/htdocs/Miroff_Airplanes/tf-idf_automod/score_map.json';
-    if (file_exists($score_map_path)) {
-        $score_map_json = file_get_contents($score_map_path);
-        $score_map = json_decode($score_map_json, true);
-
-        function preprocess_text($text) {
-            $text = mb_strtolower($text, 'UTF-8');
-            $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
-            return $words;
-        }
-
-        function classify_text($text, $score_map) {
-            $words = preprocess_text($text);
-            $score_total = 0;
-            foreach ($words as $word) {
-                if (isset($score_map[$word])) {
-                    $score_total += $score_map[$word];
-                }
-            }
-            return $score_total;
-        }
-
-        $score_total = classify_text($texte, $score_map);
-        if ($score_total <= 0) {
-            http_response_code(403);
-            echo json_encode(['message' => '🚫 Message offensant.']);
-            exit;
-        }
-    }
-
-    // Msg valide
-    $texte = htmlspecialchars($texte);
-    $nom = htmlspecialchars($_SESSION['client']['prenom']);
-    $query = "INSERT INTO Messages (nom, texte, date_envoi) VALUES (?, ?, NOW())";
-    $stmt = getBD()->prepare($query);
-    $stmt->bind_param("ss", $nom, $texte);
-    $stmt->execute();
-    echo json_encode(['status' => 'success']);
-
+    );
+    echo json_encode(['success' => true]);
+    error_log("Message inséré avec succès.");
 } catch (Exception $e) {
+    error_log("Erreur lors de l'insertion : " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'Erreur lors de l\'insertion du message.', 'details' => $e->getMessage()]);
+    exit;
 }
 ?>

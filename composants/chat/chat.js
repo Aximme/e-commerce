@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     }
-
     function showTemporaryMessage(message) {
         const tempMessage = document.createElement("div");
         tempMessage.innerHTML = message;
@@ -28,12 +27,11 @@ document.addEventListener("DOMContentLoaded", function () {
         tempMessage.style.borderRadius = "5px";
         chatMessages.appendChild(tempMessage);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        setTimeout(() => {
+            setTimeout(() => {
             if (tempMessage.parentNode === chatMessages) {
                 chatMessages.removeChild(tempMessage);
             }
-        }, 5000);
+        }, 10000);
     }
 
     chatForm.addEventListener("submit", function (e) {
@@ -50,17 +48,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         showTemporaryMessage('🚫 Vous devez être <a href="/../login.php">connecté</a> pour utiliser le chat.');
                         throw new Error('Unauthorized');
                     } else if (response.status === 403) {
-                        showTemporaryMessage('🚫 Message offensant detecté :( Veuillez modifier votre message.');
+                        showTemporaryMessage('🚫 Message offensant détecté :( Veuillez modifier votre message.');
                         throw new Error('Offensive message or invalid CSRF token');
                     }
                     return response.json();
                 })
                 .then((data) => {
+                    console.log('Réponse réussie:', data);
                     chatInput.value = "";
                     loadMessages();
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error capturée:', error);
                 });
         }
     });
