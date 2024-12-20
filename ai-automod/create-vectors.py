@@ -1,3 +1,17 @@
+"""
+Table a créer :
+CREATE TABLE MIROFF_Airplanes.insultVectors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mot VARCHAR(255) NOT NULL,
+    vecteur BLOB NOT NULL
+);
+"""
+
+
+
+
+
+
 import mysql.connector
 from sentence_transformers import SentenceTransformer
 import pickle

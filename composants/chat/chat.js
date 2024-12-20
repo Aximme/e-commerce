@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch('/Miroff_Airplanes/composants/chat/load_msg.php')
             .then(response => response.json())
             .then(data => {
-                if (isShowingError) return; // Vérifier à nouveau après la réponse
+                if (isShowingError) return;
                 chatMessages.innerHTML = "";
                 data.forEach(message => {
                     const msgElement = document.createElement("div");
@@ -22,9 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     }
-    
+
     function showTemporaryMessage(message) {
-        // Empêcher le rafraîchissement automatique pendant l'affichage du message
         isShowingError = true;
         
         const tempMessage = document.createElement("div");
@@ -35,15 +34,13 @@ document.addEventListener("DOMContentLoaded", function () {
         tempMessage.style.margin = "10px 0";
         tempMessage.style.borderRadius = "5px";
         
-        // Nettoyer le conteneur de messages
         chatMessages.innerHTML = '';
         chatMessages.appendChild(tempMessage);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         
-        // Attendre 5 secondes avant de restaurer
         setTimeout(() => {
-            isShowingError = false; // Réactiver le rafraîchissement automatique
-            loadMessages(); // Recharger les messages
+            isShowingError = false;
+            loadMessages();
         }, 5000);
     }
 
@@ -67,13 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     return response.json();
                 })
                 .then((data) => {
-                    console.log('Réponse réussie:', data);
                     chatInput.value = "";
                     loadMessages();
                 })
-                .catch(error => {
-                    console.error('Error capturée:', error);
-                });
         }
     });
 
